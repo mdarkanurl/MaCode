@@ -1,7 +1,8 @@
-import { createProblems } from "./problems-controllers";
+import { createProblems, getAllProblems } from "./problems-controllers";
 
 const problemscontrollers = {
-    createProblems
+    createProblems,
+    getAllProblems
 }
 
 export {

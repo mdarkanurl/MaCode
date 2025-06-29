@@ -25,6 +25,18 @@ async function createProblems(data: {
     }
 }
 
+async function getAllProblems() {
+    try {
+        // Get all problems from Database
+        const problems = await problemRepo.getAll();
+        return problems;
+    } catch (error) {
+        if(error instanceof CustomError) return error;
+        throw new CustomError('Internal Server Error', 500);
+    }
+}
+
 export {
-    createProblems
+    createProblems,
+    getAllProblems
 }

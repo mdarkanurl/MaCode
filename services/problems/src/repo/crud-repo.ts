@@ -38,7 +38,7 @@ export class CrudRepo {
         try {
             return await this.model.findMany();
         } catch (error) {
-            throw new CustomError("Failed to get records", 500);
+            throw new CustomError("Failed to get data from Database. Please try again", 500);
         }
     }
 

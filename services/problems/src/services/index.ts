@@ -1,7 +1,8 @@
-import { createProblems } from "./problems-services";
+import { createProblems, getAllProblems } from "./problems-services";
 
 const problemsServices = {
-    createProblems
+    createProblems,
+    getAllProblems
 }
 
 export {
