@@ -42,26 +42,14 @@ export class CrudRepo {
         }
     }
 
-    async getById(id: string) {
+    async getById(id: number) {
        try {
          return await this.model.findUnique({
             where: { id },
         });
        } catch (error) {
-            throw new CustomError("Failed to get record", 500);
+            throw new CustomError("Failed to get data from Database. Please try again", 500);
        }
-    }
-
-    async getByEmail(email: string) {
-        try {
-            const users = await this.model.findUnique({
-            where: { email },
-        });
-        
-        return users;
-        } catch (error) {
-            throw new CustomError("Failed to get record", 500);
-        }
     }
 
     async update(id: string, data: any) {

@@ -4,5 +4,6 @@ const router = Router();
 
 router.post('/problems', problemscontrollers.createProblems);
 router.get('/problems', problemscontrollers.getAllProblems);
+router.get('/problems/:id', problemscontrollers.getProblem);
 
 export default router;

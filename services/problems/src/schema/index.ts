@@ -1,7 +1,8 @@
-import { createProblemsSchema } from "./problems-schema";
+import { createProblemsSchema, getProblemSchema } from "./problems-schema";
 
 const problemsSchema = {
-    createProblemsSchema
+    createProblemsSchema,
+    getProblemSchema
 }
 
 export {

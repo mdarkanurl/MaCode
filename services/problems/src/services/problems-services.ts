@@ -36,7 +36,19 @@ async function getAllProblems() {
     }
 }
 
+async function getProblem(data: { id: number }) {
+    try {
+        // Find problem by ID
+        const problem = await problemRepo.getById(data.id);
+        return problem;
+    } catch (error) {
+        if(error instanceof CustomError) return error;
+        throw new CustomError('Internal Server Error', 500);
+    }
+}
+
 export {
     createProblems,
-    getAllProblems
+    getAllProblems,
+    getProblem
 }

@@ -7,3 +7,7 @@ export const createProblemsSchema = z.object({
     difficulty: z.enum([...Object.values(DifficultyLevel) as [string, ...string[]]]),
     tags: z.string().optional()
 });
+
+export const getProblemSchema = z.object({
+    id: z.number()
+});

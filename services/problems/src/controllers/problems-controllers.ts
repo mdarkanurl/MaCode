@@ -42,7 +42,7 @@ async function getAllProblems(
 ) {
     try {
         const problems = problemsServices.getAllProblems();
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             message: 'All problems successfully get from Database',
             data: problems,
@@ -55,7 +55,40 @@ async function getAllProblems(
     }
 }
 
+async function getProblem(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    try {
+        const parseData: any = problemsSchema.getProblemSchema.safeParse(req.params);
+
+        if(!parseData) {
+            res.status(400).json({
+                success: false,
+                message: 'Invalid input',
+                data: {},
+                errors: parseData.error.errors
+            });
+            return;
+        }
+
+        const problem = problemsServices.getProblem(parseData.data);
+        res.status(200).json({
+            success: true,
+            message: 'Problem get successfully',
+            data: problem,
+            errors: {}
+        });
+        return;
+    } catch (error) {
+        if(error instanceof CustomError) return next(error);
+        return next(new CustomError('Internal Server Error', 500));
+    }
+}
+
 export {
     createProblems,
-    getAllProblems
+    getAllProblems,
+    getProblem
 }
