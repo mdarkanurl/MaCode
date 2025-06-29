@@ -6,3 +6,7 @@ class ProblemRepo extends CrudRepo {
         super(prisma.problem)
     }
 }
+
+export {
+    ProblemRepo
+}
