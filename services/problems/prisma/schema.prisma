@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Problem {
+  id          Int         @id @default(autoincrement())
+  title       String
+  description String
+  difficulty  DifficultyLevel
+  tags        String?
+  isSolved    Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  submissions Submit[]
+  discussions Discussion[]
+}
+
+model Submit {
+  id         Int      @id @default(autoincrement())
+  userId     String
+  problemId  Int
+  problem    Problem  @relation(fields: [problemId], references: [id])
+  status     String
+  language   String
+  code       String
+  runtimeMs  Int?
+  memoryKb   Int?
+  createdAt  DateTime @default(now())
+}
+
+model Discussion {
+  id         Int      @id @default(autoincrement())
+  userId     String
+  problemId  Int
+  problem    Problem  @relation(fields: [problemId], references: [id])
+  content    String
+  createdAt  DateTime @default(now())
+}
+
+enum DifficultyLevel {
+  EASY
+  MEDIUM
+  HARD
+}

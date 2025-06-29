@@ -1,0 +1,1 @@
+export { CrudRepo } from "./crud-repo";
