@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import apiRouter from "./routers";
+import { prisma } from "./prisma";
 const app = express();
 
 // Middlewares
@@ -10,11 +11,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', apiRouter);
 
 // Health check
-app.get('/api/health', (req: Request, res: Response) => {
+app.get('/api/health', async (req: Request, res: Response) => {
+  let dbStatus = 'Disconnected';
+  try {
+    await prisma.$connect();
+    dbStatus = 'Connected';
+  } catch (error) {
+    dbStatus = 'Disconnected';
+  }
   res.json({ 
     status: 'OK', 
     message: 'Server is running',
-    // database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
+    database: dbStatus,
     timestamp: new Date().toISOString()
   });
 });
