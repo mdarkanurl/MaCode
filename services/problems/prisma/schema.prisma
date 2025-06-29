@@ -14,6 +14,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum DifficultyLevel {
+  EASY
+  MEDIUM
+  HARD
+}
 
 model Problem {
   id          Int         @id @default(autoincrement())
@@ -49,10 +54,4 @@ model Discussion {
   problem    Problem  @relation(fields: [problemId], references: [id])
   content    String
   createdAt  DateTime @default(now())
-}
-
-enum DifficultyLevel {
-  EASY
-  MEDIUM
-  HARD
 }
