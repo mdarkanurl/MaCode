@@ -1,6 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import apiRouter from "./routers";
 import { prisma } from "./prisma";
+import { CustomError } from "./utils/errors/app-error";
 const app = express();
 
 // Middlewares
@@ -44,11 +45,13 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Error handling
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
-  res.status(500).json({ 
-    error: 'Something went wrong!',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+  res.status(err.statusCode || 500).json({
+    Success: false,
+    Message: err.message,
+    Data: null,
+    Errors: {}
   });
 });
 

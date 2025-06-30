@@ -13,14 +13,15 @@ async function createProblems(data: {
     try {
         // Create problems and add to DB
         const problems = await problemRepo.create(data);
-
-        if(!problems) {
-            throw new CustomError('Failed to save data to Database. Please try again', 500);
-        }
-
-        return problems;
+        return {
+            id: problems.id,
+            title: problems.title,
+            description: problems.description,
+            difficulty: problems.difficulty,
+            tags: problems.tags
+        };
     } catch (error) {
-        if(error instanceof CustomError) return error;
+        if(error instanceof CustomError) throw error;
         throw new CustomError('Internal Server Error', 500);
     }
 }
@@ -29,9 +30,20 @@ async function getAllProblems() {
     try {
         // Get all problems from Database
         const problems = await problemRepo.getAll();
-        return problems;
+
+        if(problems.length === 0) {
+            throw new CustomError('No problems found', 404);
+        }
+
+        return {
+            id: problems.id,
+            title: problems.title,
+            description: problems.description,
+            difficulty: problems.difficulty,
+            tags: problems.tags
+        };
     } catch (error) {
-        if(error instanceof CustomError) return error;
+        if(error instanceof CustomError) throw error;
         throw new CustomError('Internal Server Error', 500);
     }
 }
@@ -40,9 +52,20 @@ async function getProblem(data: { id: number }) {
     try {
         // Find problem by ID
         const problem = await problemRepo.getById(data.id);
-        return problem;
+
+        if(!problem) {
+            throw new CustomError('Problem not found', 404);
+        }
+
+        return {
+            id: problem.id,
+            title: problem.title,
+            description: problem.description,
+            difficulty: problem.difficulty,
+            tags: problem.tags
+        };
     } catch (error) {
-        if(error instanceof CustomError) return error;
+        if(error instanceof CustomError) throw error;
         throw new CustomError('Internal Server Error', 500);
     }
 }

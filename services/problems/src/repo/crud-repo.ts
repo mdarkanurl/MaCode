@@ -8,9 +8,13 @@ export class CrudRepo {
     }
 
     async create(data: Object) {
-        return await this.model.create({
-            ...data
-        });
+        try {
+            return await this.model.create({
+                data: { ...data }
+            });
+        } catch (error) {
+            throw new CustomError("Failed to create record", 500);
+        }
     }
 
     async destroy(id: string) {

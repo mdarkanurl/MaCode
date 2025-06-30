@@ -11,22 +11,23 @@ async function createProblems(
     try {
         const parseData: any = problemsSchema.createProblemsSchema.safeParse(req.body);
 
-        if(!parseData) {
+        if(!parseData.success) {
             res.status(400).json({
-                success: false,
-                message: 'Invalid input',
-                data: {},
-                errors: parseData.error.errors
+                Success: false,
+                Message: 'Invalid input',
+                Data: {},
+                Errors: parseData.error.errors
             });
             return;
         }
 
-        const problems = problemsServices.createProblems(parseData.data);
+        const problems = await problemsServices.createProblems(parseData.data);
+        
         res.status(201).json({
-            success: true,
-            message: 'Problem created successfully',
-            data: problems,
-            errors: {}
+            Success: true,
+            Message: 'Problem created successfully',
+            Data: problems,
+            Errors: {}
         });
         return;
     } catch (error) {
@@ -41,12 +42,12 @@ async function getAllProblems(
     next: NextFunction
 ) {
     try {
-        const problems = problemsServices.getAllProblems();
+        const problems = await problemsServices.getAllProblems();
         res.status(200).json({
-            success: true,
-            message: 'All problems successfully get from Database',
-            data: problems,
-            errors: {}
+            Success: true,
+            Message: 'All problems successfully get from Database',
+            Data: problems,
+            Errors: {}
         });
         return;
     } catch (error) {
@@ -61,24 +62,25 @@ async function getProblem(
     next: NextFunction
 ) {
     try {
-        const parseData: any = problemsSchema.getProblemSchema.safeParse(req.params);
+        const parseData = problemsSchema.getProblemSchema.safeParse({ id: parseInt(req.params.id) });
 
-        if(!parseData) {
+        if(!parseData.success) {
             res.status(400).json({
-                success: false,
-                message: 'Invalid input',
-                data: {},
-                errors: parseData.error.errors
+                Success: false,
+                Message: 'Invalid input',
+                Data: {},
+                Errors: parseData.error.errors
             });
             return;
         }
 
-        const problem = problemsServices.getProblem(parseData.data);
+        const problem = await problemsServices.getProblem(parseData.data);
+
         res.status(200).json({
-            success: true,
-            message: 'Problem get successfully',
-            data: problem,
-            errors: {}
+            Success: true,
+            Message: 'Problem get successfully',
+            Data: problem,
+            Errors: {}
         });
         return;
     } catch (error) {
