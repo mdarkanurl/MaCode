@@ -18,7 +18,6 @@ async function consumeData() {
     channel?.consume(queue, async (msg: amqplib.ConsumeMessage | null) => {
         if (msg !== null) {
             const data = JSON.parse(msg.content.toString());
-            // console.log('Received:', msg.content.toString());
 
             // Create temp dir
             const submissionId = uuidv4();

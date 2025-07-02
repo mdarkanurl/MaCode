@@ -10,7 +10,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -21,12 +21,14 @@ enum DifficultyLevel {
 }
 
 model Problem {
-  id          Int         @id @default(autoincrement())
+  id          String         @id
   title       String
   description String
+  functionName String
+  language     String[]
   difficulty  DifficultyLevel
-  testCases   Json
-  tags        String?
+  testCases   Json[]
+  tags        String[]
   isSolved    Boolean     @default(false)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -38,9 +40,9 @@ model Problem {
 model Submit {
   id         Int      @id @default(autoincrement())
   userId     String
-  problemId  Int
+  problemId  String
   problem    Problem  @relation(fields: [problemId], references: [id])
-  status     String
+  status     Boolean
   language   String
   code       String
   runtimeMs  Int?
@@ -51,7 +53,7 @@ model Submit {
 model Discussion {
   id         Int      @id @default(autoincrement())
   userId     String
-  problemId  Int
+  problemId  String
   problem    Problem  @relation(fields: [problemId], references: [id])
   content    String
   createdAt  DateTime @default(now())
