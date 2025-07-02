@@ -1,9 +1,10 @@
-import { createProblems, getAllProblems, getProblem } from "./problems-controllers";
+import { createProblems, getAllProblems, getProblem, submitSolution } from "./problems-controllers";
 
 const problemscontrollers = {
     createProblems,
     getAllProblems,
-    getProblem
+    getProblem,
+    submitSolution
 }
 
 export {

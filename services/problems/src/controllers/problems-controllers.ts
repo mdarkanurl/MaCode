@@ -89,8 +89,42 @@ async function getProblem(
     }
 }
 
+async function submitSolution(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    try {
+        const parseData = problemsSchema.submitSolutionSchema.safeParse(req.body);
+
+        if(!parseData.success) {
+            res.status(400).json({
+                Success: false,
+                Message: 'Invalid input',
+                Data: {},
+                Errors: parseData.error.errors
+            });
+            return;
+        }
+
+        await problemsServices.submitSolution(parseData.data);
+
+        res.status(200).json({
+            Success: true,
+            Message: 'Solution submitted successfully',
+            Data: {},
+            Errors: {}
+        });
+        return;
+    } catch (error) {
+        if(error instanceof CustomError) return next(error);
+        return next(new CustomError('Internal Server Error', 500));
+    }
+}
+
 export {
     createProblems,
     getAllProblems,
-    getProblem
+    getProblem,
+    submitSolution
 }

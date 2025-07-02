@@ -1,6 +1,7 @@
 import { ProblemRepo } from "../repo";
 import { DifficultyLevel } from "../generated/prisma";
 import { CustomError } from "../utils/errors/app-error";
+import { sendData } from "../utils/RabbitMQ";
 
 const problemRepo = new ProblemRepo();
 
@@ -70,8 +71,41 @@ async function getProblem(data: { id: number }) {
     }
 }
 
+async function submitSolution(data: {
+    problemId: number,
+    userId: number,
+    language: string,
+    solution: string
+}) {
+    try {
+        // Check if problem exists
+        const problem = await problemRepo.getById(data.problemId);
+
+        if(!problem) {
+            throw new CustomError('Problem not found', 404);
+        }
+
+        // Send data to RabbitMQ
+        const message = {
+            problem: {
+                id: problem.id,
+                testCases: problem.testCases
+            },
+            userId: data.userId,
+            language: data.language,
+            solution: data.solution
+        };
+
+        await sendData(message);
+    } catch (error) {
+        if(error instanceof CustomError) throw error;
+        throw new CustomError('Internal Server Error', 500);
+    }
+}
+
 export {
     createProblems,
     getAllProblems,
-    getProblem
+    getProblem,
+    submitSolution
 }

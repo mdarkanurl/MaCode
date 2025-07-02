@@ -25,6 +25,7 @@ model Problem {
   title       String
   description String
   difficulty  DifficultyLevel
+  testCases   Json
   tags        String?
   isSolved    Boolean     @default(false)
   createdAt   DateTime    @default(now())
