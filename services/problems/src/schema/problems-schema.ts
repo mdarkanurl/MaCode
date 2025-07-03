@@ -17,8 +17,8 @@ export const getProblemSchema = z.object({
 });
 
 export const submitSolutionSchema = z.object({
-    problemId: z.number(),
     userId: z.number(),
+    problemId: z.number(),
     language: z.string().min(1),
     solution: z.string().min(1)
 });

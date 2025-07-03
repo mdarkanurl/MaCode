@@ -82,7 +82,14 @@ async function submitSolution(data: {
         const problem = await problemRepo.getById(data.problemId);
 
         if(!problem) {
-            throw new CustomError('Problem not found', 404);
+            throw new CustomError('The problem does not exist', 404);
+        }
+
+        // check the language support or not
+        for (let i = 0; i < problem.language.length; i++) {
+            if(problem.language[i] !== data.language) {
+                throw new CustomError(`This problem does not support ${data.language} language}`, 404);
+            }
         }
 
         // Send data to RabbitMQ

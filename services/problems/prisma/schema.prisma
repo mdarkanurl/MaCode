@@ -44,7 +44,7 @@ model Submit {
   problem    Problem  @relation(fields: [problemId], references: [id])
   status     String
   language   String
-  code       String
+  solution   String
   runtimeMs  Int?
   memoryKb   Int?
   createdAt  DateTime @default(now())
