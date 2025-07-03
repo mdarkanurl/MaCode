@@ -42,7 +42,7 @@ model Submit {
   userId     String
   problemId  String
   problem    Problem  @relation(fields: [problemId], references: [id])
-  status     Boolean
+  status     String
   language   String
   code       String
   runtimeMs  Int?
