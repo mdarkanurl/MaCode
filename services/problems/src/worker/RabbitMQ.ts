@@ -2,7 +2,8 @@ import amqplib from "amqplib";
 import { v4 as uuidv4 } from 'uuid';
 import path from "path";
 import fs from "fs";
-import { runUserCodeInDocker } from "./run-code";
+import { spawnSync } from "child_process";
+import { prisma } from "../prisma";
 
 let channel: amqplib.Channel | null;
 const queue = 'problems';
@@ -26,26 +27,110 @@ async function consumeData() {
 
             // Save user code to temp dir
             const userCodePath = path.join(tempDir, 'user_code.py');
-            fs.writeFileSync(userCodePath, data.solution || '');
+            fs.writeFileSync(userCodePath, data.solution);
 
-            const results = [];
-            for (let i = 0; i < data.problem.testCases.length; i++) {
-                const testCase = data.problem.testCases[i];
-                // Save input to file if needed (not used in current Docker command)
-                // const inputPath = path.join(tempDir, `input_${i}.txt`);
-                // fs.writeFileSync(inputPath, testCase.input);
-                const result = await runUserCodeInDocker(tempDir, testCase.output);
-                results.push({
-                    testCase: i + 1,
-                    status: result.status,
-                    output: result.output,
-                    error: result.error || null
-                });
+            // Save function name to temp dir
+            const functionNamePath = path.join(tempDir, 'function_name.txt');
+            fs.writeFileSync(functionNamePath, data.functionName);
+
+            // Copy runner.js
+            const runnerSrc = path.resolve(__dirname, './runner/javascript/runner.js');
+            const runnerDest = path.join(tempDir, 'runner.js');
+            fs.copyFileSync(runnerSrc, runnerDest);
+
+            try {
+                for (const test of data.testCases) {
+                    // Always pass input as a JSON array or string
+                    const input = test.input;
+                    const dockerArgs = [
+                        'run', '--rm',
+                        '-v', `${tempDir}:/app`,
+                        '--memory', '100m', '--cpus', '0.5',
+                        'leetcode-js',
+                        'node', 'runner.js', JSON.stringify(JSON.parse(input))
+                    ];
+
+                    const result = spawnSync('docker', dockerArgs, { cwd: tempDir, timeout: 10000, encoding: 'utf-8' });
+
+                    // if return Execution Error
+                    if(result.error) {
+                        await prisma.submit.create({
+                            data: {
+                                userId: data.userId,
+                                problemId: data.problemId,
+                                status: "Execution Error",
+                                language: data.language,
+                                code: data.code
+                            }
+                        });
+                        channel?.ack(msg);
+                        return;
+                    }
+
+                    // if return Abnormal Exit
+                    if (result.status !== 0) {
+                        await prisma.submit.create({
+                            data: {
+                                userId: data.userId,
+                                problemId: data.problemId,
+                                status: "Abnormal Exit",
+                                language: data.language,
+                                code: data.code
+                            }
+                        });
+                        channel?.ack(msg);
+                        return;
+                    }
+
+                    // if return Timeout
+                    if(result.signal === "SIGTERM") {
+                        await prisma.submit.create({
+                            data: {
+                                userId: data.userId,
+                                problemId: data.problemId,
+                                status: "Timeout",
+                                language: data.language,
+                                code: data.code
+                            }
+                        });
+                        channel?.ack(msg);
+                        return;
+                    }
+
+                    const output = result.stdout.trim();
+                    const passed = JSON.stringify(JSON.parse(output)) === JSON.stringify(JSON.parse(test.expected));
+
+
+                    if(passed) {
+                        await prisma.submit.create({
+                            data: {
+                                userId: data.userId,
+                                problemId: data.problemId,
+                                status: "Correct solution",
+                                language: data.language,
+                                code: data.code
+                            }
+                        });
+                        channel?.ack(msg);
+                        return;
+                    } else {
+                        await prisma.submit.create({
+                            data: {
+                                userId: data.userId,
+                                problemId: data.problemId,
+                                status: "Incorrect solution",
+                                language: data.language,
+                                code: data.code
+                            }
+                        });
+                        channel?.ack(msg);
+                        return;
+                    }
+                }
+            } catch (error) {
+                
             }
-            // Clean up temp dir if needed
-            // fs.rmSync(tempDir, { recursive: true, force: true });
-            // Optionally: send results back to another queue or log them
-            channel?.ack(msg);
+            
         }
     });
 }
