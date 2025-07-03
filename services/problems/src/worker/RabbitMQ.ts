@@ -128,7 +128,7 @@ async function consumeData() {
                     }
                 }
             } catch (error) {
-                
+                console.log(error);
             }
             
         }
