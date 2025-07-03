@@ -60,7 +60,7 @@ async function consumeData() {
                                 problemId: data.problemId,
                                 status: "Execution Error",
                                 language: data.language,
-                                code: data.code
+                                solution: data.solution
                             }
                         });
                         channel?.ack(msg);
@@ -75,7 +75,7 @@ async function consumeData() {
                                 problemId: data.problemId,
                                 status: "Abnormal Exit",
                                 language: data.language,
-                                code: data.code
+                                solution: data.solution
                             }
                         });
                         channel?.ack(msg);
@@ -90,7 +90,7 @@ async function consumeData() {
                                 problemId: data.problemId,
                                 status: "Timeout",
                                 language: data.language,
-                                code: data.code
+                                solution: data.solution
                             }
                         });
                         channel?.ack(msg);
@@ -108,7 +108,7 @@ async function consumeData() {
                                 problemId: data.problemId,
                                 status: "Correct solution",
                                 language: data.language,
-                                code: data.code
+                                solution: data.solution
                             }
                         });
                         channel?.ack(msg);
@@ -120,7 +120,7 @@ async function consumeData() {
                                 problemId: data.problemId,
                                 status: "Incorrect solution",
                                 language: data.language,
-                                code: data.code
+                                solution: data.solution
                             }
                         });
                         channel?.ack(msg);
