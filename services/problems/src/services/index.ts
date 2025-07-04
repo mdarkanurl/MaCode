@@ -1,4 +1,5 @@
-import { createProblems, getAllProblems, getProblem, submitSolution } from "./problems-services";
+import { createProblems, getAllProblems, getProblem } from "./problems-services";
+import { submitSolution } from "./submit-service";
 
 const problemsServices = {
     createProblems,

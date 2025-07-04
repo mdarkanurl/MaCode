@@ -46,7 +46,6 @@ app.get('/', (req: Request, res: Response) => {
 
 // Error handling
 app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
   res.status(err.statusCode || 500).json({
     Success: false,
     Message: err.message,

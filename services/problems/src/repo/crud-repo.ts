@@ -17,7 +17,7 @@ export class CrudRepo {
         }
     }
 
-    async destroy(id: string) {
+    async destroy(id: number) {
         try {
             return await this.model.delete(
                 {
@@ -28,7 +28,7 @@ export class CrudRepo {
         }
     }
 
-    async get(id: string) {
+    async get(id: number) {
         try {
             return await this.model.findUnique({
             where: { id },
@@ -56,15 +56,12 @@ export class CrudRepo {
        }
     }
 
-    async update(id: string, data: any) {
+    async update(id: number, data: object) {
         try {
-            console.log('Data is, ', id, data);
-            const x = await this.model.update({
+            return await this.model.update({
                 where: { id },
                 data: { ...data },
             });
-            console.log(x);
-            return x;
         } catch (error) {
             throw new CustomError("Failed to update record", 500);
         }

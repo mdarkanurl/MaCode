@@ -1,24 +1,38 @@
 import { ProblemRepo } from "../repo";
 import { DifficultyLevel } from "../generated/prisma";
 import { CustomError } from "../utils/errors/app-error";
-import { sendData } from "../utils/RabbitMQ";
 
 const problemRepo = new ProblemRepo();
 
 async function createProblems(data: {
+    id: string,
     title: string,
     description: string,
+    functionName: string,
+    language: string[],
     difficulty: DifficultyLevel,
-    tags: string
+    testCases: JSON[],
+    tags?: string
 }) {
     try {
+        // Check if problem already exist or not
+        const isProblemExist = await problemRepo.getByProblemId(data.id);
+
+        if(isProblemExist) {
+            throw new CustomError(`The problem id ${data.id} already taken`, 400);
+        }
+
+
         // Create problems and add to DB
         const problems = await problemRepo.create(data);
         return {
             id: problems.id,
             title: problems.title,
             description: problems.description,
+            functionName: problems.functionName,
+            language: problems.language,
             difficulty: problems.difficulty,
+            testCases: problems.testCases,
             tags: problems.tags
         };
     } catch (error) {
@@ -71,48 +85,8 @@ async function getProblem(data: { id: number }) {
     }
 }
 
-async function submitSolution(data: {
-    problemId: number,
-    userId: number,
-    language: string,
-    solution: string
-}) {
-    try {
-        // Check if problem exists
-        const problem = await problemRepo.getById(data.problemId);
-
-        if(!problem) {
-            throw new CustomError('The problem does not exist', 404);
-        }
-
-        // check the language support or not
-        for (let i = 0; i < problem.language.length; i++) {
-            if(problem.language[i] !== data.language) {
-                throw new CustomError(`This problem does not support ${data.language} language}`, 404);
-            }
-        }
-
-        // Send data to RabbitMQ
-        const message = {
-            problem: {
-                id: problem.id,
-                testCases: problem.testCases
-            },
-            userId: data.userId,
-            language: data.language,
-            solution: data.solution
-        };
-
-        await sendData(message);
-    } catch (error) {
-        if(error instanceof CustomError) throw error;
-        throw new CustomError('Internal Server Error', 500);
-    }
-}
-
 export {
     createProblems,
     getAllProblems,
-    getProblem,
-    submitSolution
+    getProblem
 }
