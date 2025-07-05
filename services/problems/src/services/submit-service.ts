@@ -28,12 +28,12 @@ async function submitSolution(data: {
 
         // Send data to RabbitMQ
         const message = {
-            problem: {
-                id: problem.id,
-                testCases: problem.testCases
-            },
+            problemId: problem.id,
+            problemName: problem.functionName,
+            testCases: problem.testCases,
             userId: data.userId,
             language: data.language,
+            functionName: problem.functionName,
             solution: data.solution
         };
 

@@ -39,7 +39,7 @@ model Problem {
 
 model Submit {
   id         Int      @id @default(autoincrement())
-  userId     String
+  userId     Int
   problemId  String
   problem    Problem  @relation(fields: [problemId], references: [id])
   status     String
