@@ -28,25 +28,12 @@ enum SubmitStatus {
   TIME_OUT
 }
 
-enum Language {
-  JavaScript
-  Python
-  Go
-  Rust
-  C
-  C_Plus_Plus
-  C_Sharp
-  Java
-  SQL
-  Swift
-}
-
 model Problem {
   id          String         @id
   title       String
   description String
   functionName String
-  language     Language
+  language     String[]
   difficulty  DifficultyLevel
   testCases   Json[]
   tags        String[]
@@ -64,7 +51,7 @@ model Submit {
   problemId  String
   problem    Problem  @relation(fields: [problemId], references: [id])
   status     String
-  language   Language
+  language   String
   code   String
   runtimeMs  Int?
   memoryKb   Int?
