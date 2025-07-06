@@ -53,6 +53,7 @@ model Submit {
   status     String
   language   String
   code   String
+  output String?
   runtimeMs  Int?
   memoryKb   Int?
   createdAt  DateTime @default(now())
