@@ -39,6 +39,7 @@ async function submitSolution(data: {
         // Send data to RabbitMQ
         const message = {
             submissionId: submits.id,
+            language: data.language,
             functionName: problem.functionName,
             testCases: problem.testCases,
             code: data.code
