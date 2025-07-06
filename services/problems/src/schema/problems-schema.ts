@@ -12,7 +12,7 @@ export const createProblemsSchema = z.object({
         input: z.string().min(1),
         expected: z.string().min(1)
     })),
-    tags: z.string().optional()
+    tags: z.array(z.string()).optional()
 });
 
 export const getProblemSchema = z.object({
