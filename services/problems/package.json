@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node src/app.ts",
+    "run:worker": "ts-node src/worker/rabbitmq.ts",
     "migrate:dev": "prisma migrate dev"
   },
   "keywords": [],

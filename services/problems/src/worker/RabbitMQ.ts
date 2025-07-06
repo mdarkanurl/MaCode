@@ -14,9 +14,7 @@ async function sendMessage() {
         if (msg !== null) {
             const data = JSON.parse(msg.content.toString());
 
-            console.log('Received message:', data);
             if(data.language === 'javascript') {
-              console.log('Received message:', data);
                 JavaScript(
                     channel, msg,
                     {
