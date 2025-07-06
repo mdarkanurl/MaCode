@@ -89,8 +89,54 @@ async function getProblem(
     }
 }
 
+async function updateProblem(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    try {
+        const parseData = problemsSchema.updateProblemSchema.safeParse(req.body);
+        const problemId = req.params.id as string;
+
+        if(!parseData.success || req.body === null || undefined || !problemId) {
+            res.status(400).json({
+                Success: false,
+                Message: 'Invalid input',
+                Data: {},
+                Errors: parseData?.error?.errors
+            });
+            return;
+        }
+
+        const problems = await problemsServices.updateProblem(
+            {
+                id: problemId,
+                data: {
+                    title: parseData.data.title,
+                    description: parseData.data.description,
+                    language: parseData.data.language,
+                    testCases: parseData.data.testCases,
+                    tags: parseData.data.tags
+                }
+            }
+        )
+
+        res.status(200).json({
+            Success: true,
+            Message: 'Problem successfully updated',
+            Data: problems,
+            Errors: {}
+        });
+        return;
+    } catch (error) {
+        if(error instanceof CustomError) return next(error);
+        return next(new CustomError('Internal Server Error', 500));
+    }
+}
+
 export {
     createProblems,
     getAllProblems,
-    getProblem
+    getProblem,
+    updateProblem
 }

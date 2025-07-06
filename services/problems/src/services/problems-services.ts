@@ -65,10 +65,10 @@ async function getAllProblems() {
     }
 }
 
-async function getProblem(data: { id: number }) {
+async function getProblem(data: { id: string }) {
     try {
         // Find problem by ID
-        const problem = await problemRepo.getById(data.id);
+        const problem = await problemRepo.getByProblemId(data.id);
 
         if(!problem) {
             throw new CustomError('Problem not found', 404);
@@ -78,9 +78,41 @@ async function getProblem(data: { id: number }) {
             id: problem.id,
             title: problem.title,
             description: problem.description,
+            functionName: problem.functionName,
+            language: problem.language,
             difficulty: problem.difficulty,
+            testCases: problem.testCases,
             tags: problem.tags
         };
+    } catch (error) {
+        if(error instanceof CustomError) throw error;
+        throw new CustomError('Internal Server Error', 500);
+    }
+}
+
+async function updateProblem(
+    data: {
+        id: string,
+        data: {
+            title: string | undefined,
+            description: string | undefined,
+            language: string[] | undefined,
+            testCases: any,
+            tags?: string[] | undefined
+        }
+    }
+) {
+    try {
+        const problems = await problemRepo.updateById(
+            data.id,
+            data.data
+        );
+
+        if(!problems) {
+            throw new CustomError('Problem can not update. Please check problem ID', 404);
+        }
+
+        return problems;
     } catch (error) {
         if(error instanceof CustomError) throw error;
         throw new CustomError('Internal Server Error', 500);
@@ -90,5 +122,6 @@ async function getProblem(data: { id: number }) {
 export {
     createProblems,
     getAllProblems,
-    getProblem
+    getProblem,
+    updateProblem
 }
