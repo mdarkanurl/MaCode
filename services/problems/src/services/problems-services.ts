@@ -1,6 +1,7 @@
 import { ProblemRepo } from "../repo";
 import { DifficultyLevel } from "../generated/prisma";
 import { CustomError } from "../utils/errors/app-error";
+import { prisma } from "../prisma";
 
 const problemRepo = new ProblemRepo();
 
@@ -44,19 +45,20 @@ async function createProblems(data: {
 async function getAllProblems() {
     try {
         // Get all problems from Database
-        const problems = await problemRepo.getAll();
+        const problems = await prisma.problem.findMany({
+            select: {
+                id: true,
+                title: true,
+                difficulty: true,
+                tags: true
+            }
+        });
 
         if(problems.length === 0) {
             throw new CustomError('No problems found', 404);
         }
 
-        return {
-            id: problems.id,
-            title: problems.title,
-            description: problems.description,
-            difficulty: problems.difficulty,
-            tags: problems.tags
-        };
+        return problems;
     } catch (error) {
         if(error instanceof CustomError) throw error;
         throw new CustomError('Internal Server Error', 500);
