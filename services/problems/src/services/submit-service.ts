@@ -1,15 +1,17 @@
 import { ProblemRepo } from "../repo";
+import { SubmitRepo } from "../repo/submit-repo";
 import { CustomError } from "../utils/errors/app-error";
 import { sendData } from "../utils/RabbitMQ";
 
 const problemRepo = new ProblemRepo();
+const submitRepo = new SubmitRepo();
 
 
 async function submitSolution(data: {
     problemId: string,
     userId: number,
     language: string,
-    solution: string
+    code: string
 }) {
     try {
         // Check if problem exists
@@ -26,18 +28,28 @@ async function submitSolution(data: {
             }
         }
 
+        const submits = await submitRepo.create({
+            userId: data.userId,
+            problemId: problem.id,
+            status: "PENDING",
+            language: data.language,
+            code: data.code,
+        });
+
         // Send data to RabbitMQ
         const message = {
-            problemId: problem.id,
-            problemName: problem.functionName,
-            testCases: problem.testCases,
-            userId: data.userId,
-            language: data.language,
+            submissionId: submits.id,
             functionName: problem.functionName,
-            solution: data.solution
+            testCases: problem.testCases,
+            code: data.code
         };
 
         await sendData(message);
+        
+        return {
+            submitId: submits.id,
+            status: submits.status
+        }
     } catch (error) {
         if(error instanceof CustomError) throw error;
         throw new CustomError('Internal Server Error', 500);

@@ -23,5 +23,5 @@ export const submitSolutionSchema = z.object({
     userId: z.number(),
     problemId: z.string(),
     language: z.string().min(1),
-    solution: z.string().min(1)
+    code: z.string().min(1)
 });

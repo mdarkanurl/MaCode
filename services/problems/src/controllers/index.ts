@@ -1,4 +1,5 @@
-import { createProblems, getAllProblems, getProblem, submitSolution } from "./problems-controllers";
+import { createProblems, getAllProblems, getProblem } from "./problems-controllers";
+import { submitSolution } from "./submit-controllers";
 
 const problemscontrollers = {
     createProblems,

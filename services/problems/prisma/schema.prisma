@@ -20,12 +20,33 @@ enum DifficultyLevel {
   HARD
 }
 
+enum SubmitStatus {
+  PENDING
+  ACCEPTED
+  WRONG_ANSWER
+  EXECUTION_ERROR
+  TIME_OUT
+}
+
+enum Language {
+  JavaScript
+  Python
+  Go
+  Rust
+  C
+  C_Plus_Plus
+  C_Sharp
+  Java
+  SQL
+  Swift
+}
+
 model Problem {
   id          String         @id
   title       String
   description String
   functionName String
-  language     String[]
+  language     Language
   difficulty  DifficultyLevel
   testCases   Json[]
   tags        String[]
@@ -43,8 +64,8 @@ model Submit {
   problemId  String
   problem    Problem  @relation(fields: [problemId], references: [id])
   status     String
-  language   String
-  solution   String
+  language   Language
+  code   String
   runtimeMs  Int?
   memoryKb   Int?
   createdAt  DateTime @default(now())
