@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { CustomError } from "../utils/errors/app-error";
 import { problemsSchema } from "../schema";
+import { DifficultyLevel } from "../generated/prisma";
 import { problemsServices } from "../services";
 
 async function createProblems(
@@ -42,7 +43,40 @@ async function getAllProblems(
     next: NextFunction
 ) {
     try {
-        const problems = await problemsServices.getAllProblems();
+        const { difficulty, tags, language, page, limit } = req.query;
+
+        const pageNumber = parseInt(page as string) || 1;
+        const limitNumber = parseInt(limit as string) || 10;
+        let tagsArray: string[] = [];
+        let languageArray: string[] = [];
+
+        if (typeof language === 'string') {
+            languageArray = language.split(',').map(lan => lan.trim());
+        } else if (Array.isArray(language)) {
+            languageArray = language
+                .filter((lan): lan is string => typeof lan === 'string')
+                .map(lan => lan.trim());
+        }
+
+        if (typeof tags === 'string') {
+            tagsArray = tags.split(',').map(tag => tag.trim());
+        } else if (Array.isArray(tags)) {
+            tagsArray = tags
+                .filter((tag): tag is string => typeof tag === 'string')
+                .map(tag => tag.trim());
+        }
+
+        const skip = (pageNumber - 1) * limitNumber; // page => 2 = (2 - 1) = 1 and limit => 10
+
+        const problems = await problemsServices.getAllProblems(
+            {
+                difficulty: difficulty as DifficultyLevel,
+                tags: tagsArray,
+                language: languageArray,
+                skip,
+                limit: limitNumber
+            }
+        );
         res.status(200).json({
             Success: true,
             Message: 'All problems successfully get from Database',

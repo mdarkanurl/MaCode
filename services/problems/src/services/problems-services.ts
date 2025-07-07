@@ -42,23 +42,61 @@ async function createProblems(data: {
     }
 }
 
-async function getAllProblems() {
+async function getAllProblems(
+    data: {
+        difficulty: DifficultyLevel | undefined,
+        tags: string[] | undefined,
+        language: string[] | undefined,
+        skip: number,
+        limit: number
+    }
+) {
     try {
+        const whereClause: any = {};
+
+        if (data.difficulty !== undefined) {
+            whereClause.difficulty = data.difficulty;
+        }
+
+        if (data.tags && data.tags.length > 0) {
+            whereClause.tags = { hasSome: data.tags }; // tags is a string[]
+        }
+
+        if (data.language && data.language.length > 0) {
+            whereClause.languages = { hasSome: data.language }; // languages is a string[]
+        }
+
+        // Get total count for pagination
+        const total = await prisma.problem.count({
+            where: whereClause
+        });
+
         // Get all problems from Database
         const problems = await prisma.problem.findMany({
+            where: whereClause,
             select: {
                 id: true,
                 title: true,
                 difficulty: true,
                 tags: true
-            }
+            },
+            skip: data.skip,
+            take: data.limit
         });
 
-        if(problems.length === 0) {
-            throw new CustomError('No problems found', 404);
-        }
+        // if(problems.length === 0) {
+        //     throw new CustomError('No problems found', 404);
+        // }
 
-        return problems;
+        return {
+            problems,
+            pagination: {
+                totalItems: total,
+                currentPage: Math.floor(data.skip / data.limit) + 1,
+                totalPages: Math.ceil(total / data.limit),
+                pageSize: data.limit
+            }
+        };
     } catch (error) {
         if(error instanceof CustomError) throw error;
         throw new CustomError('Internal Server Error', 500);
