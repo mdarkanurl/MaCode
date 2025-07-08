@@ -1,12 +1,13 @@
 import { createProblems, getAllProblems, getProblem, updateProblem } from "./problems-services";
-import { submitSolution } from "./submit-service";
+import { submitSolution, getSubmission } from "./submit-service";
 
 const problemsServices = {
     createProblems,
     getAllProblems,
     getProblem,
     submitSolution,
-    updateProblem
+    updateProblem,
+    getSubmission
 }
 
 export {

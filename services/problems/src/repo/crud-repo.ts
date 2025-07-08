@@ -50,6 +50,9 @@ export class CrudRepo {
        try {
          return await this.model.findUnique({
             where: { id },
+            select: {
+                createdAt: false
+            }
         });
        } catch (error) {
             throw new CustomError("Failed to get data from Database. Please try again", 500);

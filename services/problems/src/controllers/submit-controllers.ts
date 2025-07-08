@@ -37,6 +37,50 @@ async function submitSolution(
     }
 }
 
+async function getSubmission(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    try {
+        const id = parseInt(req.params.id);
+
+        if(!id) {
+            res.status(400).json({
+                Success: false,
+                Message: 'Invalid input, ID params missing',
+                Data: {},
+                Errors: {}
+            });
+            return;
+        }
+
+        const submissions = await problemsServices.getSubmission({ id });
+
+        if(submissions.status === "PENDING") {
+            res.status(200).json({
+                Success: false,
+                Message: 'Submissions status still PENDING',
+                Data: submissions,
+                Errors: {}
+            });
+            return;  
+        }
+
+        res.status(200).json({
+            Success: true,
+            Message: 'Submissions status changes to PENDING',
+            Data: submissions,
+            Errors: {}
+        });
+        return;
+    } catch (error) {
+        if(error instanceof CustomError) return next(error);
+        return next(new CustomError('Internal Server Error', 500));
+    }
+}
+
 export {
-    submitSolution
+    submitSolution,
+    getSubmission
 }

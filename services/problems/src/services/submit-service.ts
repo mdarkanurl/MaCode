@@ -57,6 +57,22 @@ async function submitSolution(data: {
     }
 }
 
+async function getSubmission(data: { id: number }) {
+    try {
+        const submission = await submitRepo.getById(data.id);
+
+        if(!submission) {
+            throw new CustomError('The submit ID you provided it doesn\'t exist', 404);
+        }
+
+        return submission;
+    } catch (error) {
+        if(error instanceof CustomError) throw error;
+        throw new CustomError('Internal Server Error', 500);
+    }
+}
+
 export {
-    submitSolution
+    submitSolution,
+    getSubmission
 }
