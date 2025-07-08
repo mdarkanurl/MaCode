@@ -108,7 +108,7 @@ async function getProblem(
     next: NextFunction
 ) {
     try {
-        const parseData = problemsSchema.getProblemSchema.safeParse({ id: parseInt(req.params.id) });
+        const parseData = problemsSchema.getProblemSchema.safeParse({ id: (req.params.id) });
 
         if(!parseData.success) {
             res.status(400).json({
