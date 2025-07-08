@@ -44,7 +44,7 @@ async function createProblems(data: {
 
 async function getAllProblems(
     data: {
-        difficulty: DifficultyLevel | undefined,
+        difficulty: string | undefined,
         tags: string[] | undefined,
         language: string[] | undefined,
         skip: number,
@@ -63,7 +63,7 @@ async function getAllProblems(
         }
 
         if (data.language && data.language.length > 0) {
-            whereClause.languages = { hasSome: data.language }; // languages is a string[]
+            whereClause.language = { hasSome: data.language }; // language is a string[]
         }
 
         // Get total count for pagination
@@ -77,6 +77,7 @@ async function getAllProblems(
             select: {
                 id: true,
                 title: true,
+                language: true,
                 difficulty: true,
                 tags: true
             },
@@ -84,9 +85,9 @@ async function getAllProblems(
             take: data.limit
         });
 
-        // if(problems.length === 0) {
-        //     throw new CustomError('No problems found', 404);
-        // }
+        if(problems.length === 0) {
+            throw new CustomError('No problems found', 404);
+        }
 
         return {
             problems,

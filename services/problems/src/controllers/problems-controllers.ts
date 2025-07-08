@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { CustomError } from "../utils/errors/app-error";
 import { problemsSchema } from "../schema";
-import { DifficultyLevel } from "../generated/prisma";
 import { problemsServices } from "../services";
 
 async function createProblems(
@@ -49,6 +48,19 @@ async function getAllProblems(
         const limitNumber = parseInt(limit as string) || 10;
         let tagsArray: string[] = [];
         let languageArray: string[] = [];
+        const difficultyStr = difficulty as string;
+
+        const DifficultyLevel = ["EASY", "MEDIUM", "HARD"]
+
+        if (difficulty && !DifficultyLevel.includes(difficultyStr)) {
+            res.status(400).json({
+                Success: false,
+                Message: 'Invalid difficulty level',
+                Data: {},
+                Errors: {}
+            });
+            return;
+        }
 
         if (typeof language === 'string') {
             languageArray = language.split(',').map(lan => lan.trim());
@@ -70,7 +82,7 @@ async function getAllProblems(
 
         const problems = await problemsServices.getAllProblems(
             {
-                difficulty: difficulty as DifficultyLevel,
+                difficulty: difficultyStr,
                 tags: tagsArray,
                 language: languageArray,
                 skip,
