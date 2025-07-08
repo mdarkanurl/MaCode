@@ -49,10 +49,7 @@ export class CrudRepo {
     async getById(id: number) {
        try {
          return await this.model.findUnique({
-            where: { id },
-            select: {
-                createdAt: false
-            }
+            where: { id }
         });
        } catch (error) {
             throw new CustomError("Failed to get data from Database. Please try again", 500);
