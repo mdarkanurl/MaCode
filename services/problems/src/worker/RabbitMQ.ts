@@ -1,6 +1,7 @@
 import amqplib from "amqplib";
 import express from "express";
 import { JavaScript } from "./language/js/javascript";
+import { Python } from "./language/py/python";
 const app = express();
 
 async function sendMessage() {
@@ -22,6 +23,16 @@ async function sendMessage() {
                         functionName: data.functionName,
                         testCases: data.testCases,
                         code: data.code
+                    }
+                );
+            } else if(data.language === 'python') {
+                Python(
+                    channel, msg,
+                    {
+                      submissionId: data.submissionId,
+                      functionName: data.functionName,
+                      testCases: data.testCases,
+                      code: data.code
                     }
                 );
             }
