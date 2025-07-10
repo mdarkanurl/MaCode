@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import path from "path";
-import amqplib from "amqplib";
 import fs from "fs";
 import { spawnSync } from "child_process";
 import { SubmitRepo } from '../../../repo/submit-repo';
+import amqplib from "amqplib";
 
 const submitRepo = new SubmitRepo();
 
@@ -43,6 +43,7 @@ const JavaScript = async (
                 '-v', `${tempDir}:/app`,
                 '--memory', '100m', '--cpus', '0.5',
                 'leetcode-js',
+                'timeout', '8s',
                 'node', 'runner.js', JSON.stringify(JSON.parse(inputStr))
             ];
 
@@ -106,6 +107,12 @@ const JavaScript = async (
             output: JSON.stringify({ error: error.message || error.toString() })
         });
         channel?.ack(msg);
+    } finally {
+        try {
+            fs.rmSync(tempDir, { recursive: true, force: true });
+        } catch (err) {
+            console.error("Failed to clean up temp directory:", err);
+        }
     }
 };
 
