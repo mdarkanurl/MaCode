@@ -18,7 +18,6 @@ app.get('/api/health', async (req: Request, res: Response) => {
     await prisma.$connect();
     dbStatus = 'Connected';
   } catch (error) {
-    console.log(error);
     dbStatus = 'Disconnected';
   }
   res.json({ 
