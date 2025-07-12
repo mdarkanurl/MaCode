@@ -29,7 +29,8 @@ try {
 
 try {
   const input = JSON.parse(process.argv[2]);
-  const result = global[functionName](input);
+  const args = Array.isArray(input) ? input : [input];
+  const result = global[functionName](...args);
   console.log(JSON.stringify(result));
 } catch (e) {
   const error = {
