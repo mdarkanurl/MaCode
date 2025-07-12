@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "ts-node src/app.ts",
-    "run:worker": "ts-node src/worker/rabbitmq.ts",
+    "run:worker": "ts-node src/worker/RabbitMQ.ts",
     "migrate:dev": "prisma migrate dev"
   },
   "keywords": [],
