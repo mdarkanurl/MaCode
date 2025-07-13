@@ -5,6 +5,8 @@ import { spawnSync } from "child_process";
 import { SubmitRepo } from '../../../repo/submit-repo';
 import amqplib from "amqplib";
 
+import { prepareCodeWithBabel } from "./babel/prepareCodeWithBabel";
+
 const submitRepo = new SubmitRepo();
 
 const JavaScript = async (
@@ -22,7 +24,20 @@ const JavaScript = async (
     fs.mkdirSync(tempDir, { recursive: true });
 
     const userCodePath = path.join(tempDir, 'user_code.js');
-    fs.writeFileSync(userCodePath, data.code);
+
+    // Use Babel to rewrite user's function so it attaches to global
+    try {
+        const rewrittenCode = prepareCodeWithBabel(data.code, data.functionName);
+        fs.writeFileSync(userCodePath, rewrittenCode);
+    } catch (e: any) {
+        console.error("Code preparation failed:", e);
+        await submitRepo.update(data.submissionId, {
+            status: 'INVALID_FUNCTION_SIGNATURE',
+            output: JSON.stringify({ error: e.message })
+        });
+        channel.ack(msg);
+        return;
+    }
 
     const functionNamePath = path.join(tempDir, 'function_name.txt');
     fs.writeFileSync(functionNamePath, data.functionName);
