@@ -29,6 +29,7 @@ enum SubmitStatus {
   Failed
   INTERNAL_ERROR
   INVALID_FUNCTION_SIGNATURE
+  LANGUAGE_NOT_SUPPORTED
 }
 
 model Problem {
