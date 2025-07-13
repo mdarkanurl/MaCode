@@ -28,6 +28,7 @@ enum SubmitStatus {
   TIME_OUT
   Failed
   INTERNAL_ERROR
+  INVALID_FUNCTION_SIGNATURE
 }
 
 model Problem {
