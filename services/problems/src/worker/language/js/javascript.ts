@@ -52,15 +52,28 @@ const JavaScript = async (
         for (const testCase of data.testCases) {
             const inputStr = testCase.input;
             const expectedStr = testCase.expected;
+            console.log("Raw inputStr:", inputStr);
 
-            const dockerArgs = [
-                'run', '--rm',
-                '-v', `${tempDir}:/app`,
-                '--memory', '100m', '--cpus', '0.5',
-                'leetcode-js',
-                'timeout', '8s',
-                'node', 'runner.js', JSON.stringify(JSON.parse(inputStr))
-            ];
+
+            let dockerArgs: string[];
+            try {
+                dockerArgs = [
+                    'run', '--rm',
+                    '-v', `${tempDir}:/app`,
+                    '--memory', '100m', '--cpus', '0.5',
+                    'leetcode-js',
+                    'timeout', '8s',
+                    'node', 'runner.js', JSON.stringify(JSON.parse(inputStr))
+                ];
+            } catch (error: any) {
+                console.error("Failed to prepare Docker arguments:", error);
+                await submitRepo.update(data.submissionId, {
+                    status: 'INTERNAL_ERROR',
+                    output: JSON.stringify({ error: error.message || error.toString() })
+                });
+                channel.ack(msg);
+                return;
+            }
 
             const result = spawnSync('docker', dockerArgs, {
                 cwd: tempDir,

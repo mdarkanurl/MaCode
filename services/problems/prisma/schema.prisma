@@ -26,6 +26,8 @@ enum SubmitStatus {
   WRONG_ANSWER
   EXECUTION_ERROR
   TIME_OUT
+  Failed
+  INTERNAL_ERROR
 }
 
 model Problem {
@@ -50,7 +52,7 @@ model Submit {
   userId     Int
   problemId  String
   problem    Problem  @relation(fields: [problemId], references: [id])
-  status     String
+  status     SubmitStatus
   language   String
   code   String
   output String?
