@@ -5,6 +5,7 @@ import amqplib from "amqplib";
 import { SubmitRepo } from "../../../repo";
 import { prepareCodeWithBabel } from "./babel/prepareCodeWithBabel";
 import { runDocker } from "../../utils/dockerRunner";
+import { isDeepStrictEqual } from "util";
 
 const submitRepo = new SubmitRepo();
 
@@ -41,53 +42,60 @@ export const JavaScript = async (
 
   const testResults = [];
 
-  for (const testCase of data.testCases) {
-    try {
-      const input = JSON.parse(testCase.input);
-      const expected = JSON.parse(testCase.expected);
+  
+for (const testCase of data.testCases) {
+  try {
+    const input: any[] = JSON.parse(testCase.input);
+    const expected = JSON.parse(testCase.expected);
 
-      const result = runDocker({
-        image: "leetcode-js",
-        command: ["timeout", "8s", "node", "runner.js", JSON.stringify(input)],
-        mountDir: tempDir,
-      });
+    const result = runDocker({
+      image: "leetcode-js",
+      command: ["timeout", "8s", "node", "runner.js", JSON.stringify(input)],
+      mountDir: tempDir,
+    });
+console.log(result);
+    const actualRaw = result.stdout?.trim() || '';
+    const stderr = result.stderr?.trim() || '';
+    let status = "PASSED";
+    let passed = false;
 
-      const actual = result.stdout?.trim();
-      const stderr = result.stderr?.trim();
+    if (result.error) {
+      status = "EXECUTION_ERROR";
+    } else if (result.signal === "SIGTERM") {
+      status = "TIME_OUT";
+    } else {
+      try {
+        // Parse the actual result from stdout
+        const actual = JSON.parse(actualRaw);
 
-      let status = "PASSED";
-      let passed = false;
-
-      if (result.error) status = "EXECUTION_ERROR";
-      else if (result.signal === "SIGTERM") status = "TIME_OUT";
-      else {
-        try {
-          passed = JSON.stringify(actual) === JSON.stringify(expected);
-          status = passed ? "PASSED" : "FAILED";
-        } catch {
-          status = "INVALID_JSON_OUTPUT";
-        }
+        // Use deep comparison to handle numbers, arrays, objects
+        passed = isDeepStrictEqual(actual, expected);
+        status = passed ? "PASSED" : "FAILED";
+      } catch (e) {
+        status = "INVALID_JSON_OUTPUT";
       }
-
-      testResults.push({
-        input: testCase.input,
-        expected: testCase.expected,
-        actual,
-        error: stderr || result.error?.message || null,
-        status,
-        passed,
-      });
-    } catch (error: any) {
-      testResults.push({
-        input: testCase.input,
-        expected: testCase.expected,
-        actual: "",
-        error: error.message,
-        status: "INTERNAL_ERROR",
-        passed: false,
-      });
     }
+
+    testResults.push({
+      input: testCase.input,
+      expected: testCase.expected,
+      actual: actualRaw,
+      error: stderr,
+      status,
+      passed
+    });
+
+  } catch (e: any) {
+    testResults.push({
+      input: testCase.input,
+      expected: testCase.expected,
+      actual: null,
+      error: e.message,
+      status: "INTERNAL_ERROR",
+      passed: false
+    });
   }
+}
 
   const allPassed = testResults.every(t => t.passed);
   const hasFatal = testResults.some(t => ["EXECUTION_ERROR", "TIME_OUT", "INVALID_JSON_OUTPUT"].includes(t.status));

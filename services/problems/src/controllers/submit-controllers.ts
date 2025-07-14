@@ -67,6 +67,8 @@ async function getSubmission(
             [SubmitStatus.TIME_OUT]: 'Submission timed out.',
             [SubmitStatus.Failed]: 'Submission failed.',
             [SubmitStatus.INTERNAL_ERROR]: 'Submission encountered an internal error.',
+            [SubmitStatus.INVALID_FUNCTION_SIGNATURE]: 'Submission has an invalid function signature.',
+            [SubmitStatus.LANGUAGE_NOT_SUPPORTED]: 'Submission language is not supported.',
         };
 
         res.status(200).json({
